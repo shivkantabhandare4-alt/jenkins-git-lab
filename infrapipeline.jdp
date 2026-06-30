@@ -1,0 +1,32 @@
+pipeline {
+  agent any 
+     stages {
+       stage ('pull stage') {
+         steps {
+	   git 'https://github.com/shivkantabhandare4-alt/jenkins-git-lab.git'
+	   echo 'pull success'
+         }
+       }
+       stage ('terraform - init & plan'){
+         steps {
+	   sh '''
+	   terraform init-reconfigure
+	   terraform plan
+	   '''
+         }
+       }
+       stage ('approval') {
+         steps {
+	    timeout (time:30, unit:'minutes') {
+	    input massage : approval is required.shall we proceed?,ok:"approve"
+	    }
+	 }
+       }
+       stage ('terraform-apply') {
+         steps {
+	   sh'''
+	   terraform apply --auto-approve
+	 }
+       }	 '''
+     }
+}	   
